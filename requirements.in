@@ -1,0 +1,9 @@
+omegaconf>=2.3.0
+numpy<2
+pandas
+pillow
+tqdm
+opencv-python
+wholeslidedata<0.0.16
+torch
+marimo[recommended]
