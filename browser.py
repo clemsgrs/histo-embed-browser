@@ -19,7 +19,6 @@ def _():
     import marimo as mo
     import altair as alt
 
-    from pathlib import Path
     from sklearn.manifold import TSNE
 
     from src.utils import get_cfg_from_file, load_features_and_metadata, scatter, clickable_image_preview
