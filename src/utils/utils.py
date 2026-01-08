@@ -34,7 +34,7 @@ def load_features_and_metadata(
         _feature = torch.load(row.feature_path, map_location=device)
         sampled_indices = torch.randperm(len(_feature), generator=g, device=device)[:num_tiles_per_wsi]
         sampled_feature = _feature[sampled_indices].clone()
-        features_list.append(sampled_feature)
+        features_list.append(sampled_feature.cpu())
         wsi_paths_list.extend([row.wsi_path]*len(sampled_indices))
         coordinates_paths_list.extend([row.coordinates_path]*len(sampled_indices))
         tile_indices_list.extend(list(sampled_indices.cpu().numpy()))

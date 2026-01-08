@@ -7,3 +7,4 @@ opencv-python
 wholeslidedata<0.0.16
 torch
 marimo[recommended]
+scikit-learn

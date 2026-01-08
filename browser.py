@@ -90,7 +90,7 @@ def _(device, df, kwargs, load_features_and_metadata, mo):
 
 
 @app.cell
-def _(TSNE, out, mo):
+def _(TSNE, mo, out):
     with mo.status.spinner(title="Computing t-SNE…", subtitle="Please wait...") as _sp:
         tsne = TSNE(n_components=2, perplexity=30, random_state=42, init="pca")
         emb2d = tsne.fit_transform(out["features"])
@@ -115,7 +115,7 @@ def _(emb2d, out, pd):
 
 
 @app.cell(hide_code=True)
-def _(mo, emb2d):
+def _(emb2d, mo):
     mo.stop(emb2d is None)
     mo.md(r"""
     Choose color scheme
@@ -124,7 +124,7 @@ def _(mo, emb2d):
 
 
 @app.cell
-def _(mo, out, emb2d):
+def _(emb2d, mo, out):
     mo.stop(emb2d is None)
     label = mo.ui.dropdown(out["metadata_cols"], value="case_id")
     label
