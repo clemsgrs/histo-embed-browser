@@ -16,7 +16,8 @@ You need a **csv** file with at least the following columns:
 - `feature_path`: path to pre-extracted features (`.pt` file)
 
 Features can be 1D (slide-level) or 2D (tile-level).
-For tile-level features, the **csv** must also include:
+
+For tile-level features, the viewer allows for interactive inspection of tile thumbnails provided the **csv** includes:
 
 - `coordinates_path`: path to the tile coordinates (`.npy` file)
 
@@ -43,4 +44,12 @@ Start the interactive tSNE browser using marimo:
 
 ```bash
 marimo run browser.py
+```
+
+If running from a compute node:
+
+Start the interactive tSNE browser using marimo:
+
+```bash
+marimo run browser.py --host <node-name>
 ```
