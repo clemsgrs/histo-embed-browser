@@ -1,6 +1,8 @@
-csv: "multi-organ-1k.csv"
+csv: <PATH/TO/CSV>
 
 options:
   level: "tile" # feature level: "tile" or "slide"
   context_dim: 0 # dimension of context when visualizing tiles when level is "tile" (in number of neighbouring tiles)
-  num_tiles_per_wsi: 1 # number of tiles to sample per wsi when level is "tile"
+  num_tiles_per_wsi: 5 # number of tiles to sample per wsi when level is "tile"
+  tsne:
+    perplexity: 30

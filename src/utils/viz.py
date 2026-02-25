@@ -8,12 +8,10 @@ def get_tile(
     *,
     wsi_path,
     coordinates,
-    tile_idx, 
+    tile_idx,
     context_dim: int = 0,
 ):
-    wsi = wsd.WholeSlideImage(
-        wsi_path, backend="asap"
-    ) 
+    wsi = wsd.WholeSlideImage(wsi_path, backend="asap")
     tile_level = coordinates["tile_level"][tile_idx]
     tile_spacing = wsi.spacings[tile_level]
     tile_size_resized = coordinates["tile_size_resized"][tile_idx]
@@ -64,12 +62,12 @@ def dim_and_draw_border(
     img: Image,
     tile_size: int,
     overlay_alpha: float = 0.5,
-    border_color=(0,0,0),
+    border_color=(0, 0, 0),
     border_width: int = 4,
 ):
     w, h = img.size
     left = (w - tile_size) // 2
-    top  = (h - tile_size) // 2
+    top = (h - tile_size) // 2
     right = left + tile_size
     bottom = top + tile_size
     center_box = (left, top, right, bottom)
@@ -78,12 +76,12 @@ def dim_and_draw_border(
     base = img.convert("RGBA")
 
     # create semi-transparent overlay
-    overlay = Image.new("RGBA", base.size, (0,0,0,0))
+    overlay = Image.new("RGBA", base.size, (0, 0, 0, 0))
     draw = ImageDraw.Draw(overlay)
     # fill whole overlay with semi-transparent black
-    draw.rectangle([0, 0, w, h], fill=(0,0,0,int(255 * overlay_alpha)))
+    draw.rectangle([0, 0, w, h], fill=(0, 0, 0, int(255 * overlay_alpha)))
     # make the center box transparent (cut-out)
-    draw.rectangle(center_box, fill=(0,0,0,0))
+    draw.rectangle(center_box, fill=(0, 0, 0, 0))
 
     # composite: overlay on top of base
     combined = Image.alpha_composite(base, overlay)
@@ -91,7 +89,12 @@ def dim_and_draw_border(
     # draw colored border on top (use RGBA so alpha is preserved)
     draw2 = ImageDraw.Draw(combined)
     # PIL draws border inside the rectangle; to get a symmetric border you may expand by half width
-    outer = (left - border_width//2, top - border_width//2, right + border_width//2, bottom + border_width//2)
+    outer = (
+        left - border_width // 2,
+        top - border_width // 2,
+        right + border_width // 2,
+        bottom + border_width // 2,
+    )
     draw2.rectangle(outer, outline=border_color + (255,), width=border_width)
 
     return combined.convert("RGB")
@@ -99,22 +102,25 @@ def dim_and_draw_border(
 
 def scatter(
     *,
-    df, 
+    df,
     color,
 ):
-    return (alt.Chart(df)
-    .mark_circle()
-    .encode(
-        x='x',
-        y='y',
-        color=color,
-    ).properties(width=500, height=500))
+    return (
+        alt.Chart(df)
+        .mark_circle()
+        .encode(
+            x="x",
+            y="y",
+            color=color,
+        )
+        .properties(width=500, height=500)
+    )
 
 
 def clickable_image_preview(
     *,
     df,
-    indices, 
+    indices,
     context_dim: int = 0,
     max_images: int = 20,
 ):
@@ -200,7 +206,7 @@ def clickable_image_preview(
             context_dim=context_dim,
         )
         thumb = res["tile"]
-        thumb.thumbnail((150, 150)) 
+        thumb.thumbnail((150, 150))
         thumb_buffer = io.BytesIO()
         thumb.save(thumb_buffer, format="PNG")
         thumb_b64 = base64.b64encode(thumb_buffer.getvalue()).decode("utf-8")

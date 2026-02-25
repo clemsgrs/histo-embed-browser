@@ -85,21 +85,22 @@ def _(device, df, kwargs, load_features_and_metadata, mo):
             device=device,
             **kwargs,
         )
+        display_tiles = "coordinates_paths" in out
         _sp.update("Embeddings loaded")
-    return (out,)
+    return display_tiles, out
 
 
 @app.cell
-def _(TSNE, mo, out):
+def _(TSNE, cfg, mo, out):
     with mo.status.spinner(title="Computing t-SNE…", subtitle="Please wait...") as _sp:
-        tsne = TSNE(n_components=2, perplexity=30, random_state=42, init="pca")
+        tsne = TSNE(n_components=2, perplexity=cfg.options.tsne.perplexity, random_state=42, init="pca")
         emb2d = tsne.fit_transform(out["features"])
         _sp.update("t-SNE computation complete")
     return (emb2d,)
 
 
 @app.cell
-def _(emb2d, out, pd):
+def _(display_tiles, emb2d, out, pd):
     tsne_df = pd.DataFrame(emb2d, columns=["x", "y"]).reset_index()
 
     metadata_df = pd.DataFrame({
@@ -110,7 +111,8 @@ def _(emb2d, out, pd):
     full_df = pd.concat([tsne_df.reset_index(drop=True), metadata_df], axis=1)
     full_df["tile_idx"] = out["tile_indices"]
     full_df["wsi_path"] = out["wsi_paths"]
-    full_df["coordinates_path"] = out["coordinates_paths"]
+    if display_tiles:
+        full_df["coordinates_path"] = out["coordinates_paths"]
     return (full_df,)
 
 
@@ -159,7 +161,7 @@ def _(chart, mo):
 
 
 @app.cell(hide_code=True)
-def _(cfg, chart, clickable_image_preview, full_df, mo, table):
+def _(cfg, chart, clickable_image_preview, display_tiles, full_df, mo, table):
     mo.stop(not len(chart.value))
 
     selected_indices = (
@@ -168,28 +170,38 @@ def _(cfg, chart, clickable_image_preview, full_df, mo, table):
         else list(table.value["index"])
     )
 
-    with mo.status.spinner(
-        title="Loading image previews…",
-        subtitle=f"Sampling from {len(selected_indices)} images"
-    ) as _sp:
-        gallery = clickable_image_preview(
-            df=full_df,
-            indices=selected_indices, 
-            context_dim=cfg.options.context_dim,
-            )
-        _sp.update("Previews ready.")
+    if display_tiles:
+        with mo.status.spinner(
+            title="Loading image previews…",
+            subtitle=f"Sampling from {len(selected_indices)} images"
+        ) as _sp:
+            gallery = clickable_image_preview(
+                df=full_df,
+                indices=selected_indices,
+                context_dim=cfg.options.context_dim,
+                )
+            _sp.update("Previews ready.")
+        msg = f"""
+            **Here's a preview of the images you've selected**:
 
-    mo.md(
-        f"""
-        **Here's a preview of the images you've selected**:
+            {gallery}
 
-        {gallery}
+            Here's all the data you've selected.
 
+            {table}
+            """
+    else:
+        msg = f"""
         Here's all the data you've selected.
 
         {table}
         """
-    )
+    mo.md(msg)
+    return
+
+
+@app.cell
+def _():
     return
 
 
